@@ -18,11 +18,11 @@
 <h1>Effects Component</h1>
 <p class="sub">Owner: Emmanuel Koshy</p>
 
-<p>The effects component receives audio from every playing instrument, mixes it, applies effects, and produces the final output. As a one-person team, the requirement is the basic level (the component passes audio). This implementation also includes one effect, ring modulation, with a controllable send for each instrument.</p>
+<p>The effects component mixes audio from all instruments and sends it to the output. It includes ring modulation, with a separate send level for each instrument.</p>
 
 <div class="card">
   <h3>Effects demo</h3>
-  <p>The organ played through the effects component, with vibrato and Leslie turned off so only the effects are heard. The same phrase plays three times: dry only, dry plus ring modulation, then ring modulation only.</p>
+  <p>Organ with vibrato and Leslie off. The phrase plays dry, then with dry and ring modulation, then with ring modulation only.</p>
   <audio controls preload="none" src="effects_demo.mp3"></audio>
   <p><a href="effects_demo.score" download>effects_demo.score</a></p>
 </div>
@@ -33,30 +33,30 @@
   <tr><td>10</td><td>Component passes audio</td><td class="yes">Yes</td></tr>
   <tr><td>20</td><td>1 effect</td><td class="yes">Yes (ring modulation)</td></tr>
 </table>
-<p>Each instrument also has its own controllable send levels (described below).</p>
+<p>Each instrument has its own send levels.</p>
 
 <h2>Mixing and effects sends</h2>
-<p>Instead of adding every instrument into a single output frame, the synthesizer keeps one bus per effects send. Send 0 is the dry (main) bus, and another send feeds the ring modulator. Each instrument carries its own send levels, so different parts of the piece can use different amounts of each effect.</p>
-<p>Every frame, each instrument's output is multiplied by each of its send levels and added to that bus:</p>
+<p>The synthesizer keeps a bus for each send: send 0 is dry, and another feeds the ring modulator. Each instrument has its own levels, so parts can use different amounts of the effect.</p>
+<p>Each frame, the synthesizer scales each instrument's output by its send level and adds it to the corresponding bus:</p>
 <pre>bus[send][channel] += instrument.Frame(channel) × instrument.Send(send)</pre>
-<p>After all instruments are summed, the output is</p>
+<p>The final output is</p>
 <pre>output = dry bus + RingMod(ring mod bus)</pre>
-<p>Send levels are read from the <code>&lt;instrument&gt;</code> tag and can be overridden on a single <code>&lt;note&gt;</code>:</p>
+<p>Set send levels on the <code>&lt;instrument&gt;</code> tag or override them on a <code>&lt;note&gt;</code>:</p>
 <pre>&lt;instrument instrument="Organ" main="0.4" ringmod="0.3"&gt;</pre>
-<p>With no send attributes, an instrument goes fully to the dry output (<code>main="1"</code>) and nothing goes to the effect. Setting <code>main="0"</code> with a ring mod send gives the effect alone. In the full selection, the middle section's melody is sent to both the dry bus and the ring modulator, while the rest of the piece is dry.</p>
+<p>By default, an instrument goes to the dry output (<code>main="1"</code>) and not the effect. Set <code>main="0"</code> to hear only the effect. In the selection, the middle melody goes to both buses; the rest is dry.</p>
 
 <h2>Ring modulation</h2>
 <p>Ring modulation multiplies the input by a sine wave:</p>
 <pre>out = in × sin(2π × ringfreq × t)</pre>
-<p>This replaces each frequency in the input with two new ones, at the sum and the difference of the input frequency and <code>ringfreq</code>. Because those new frequencies are usually not harmonics of the note, the result has a metallic, bell-like quality. The modulator frequency is set with <code>ringfreq</code> on the <code>&lt;score&gt;</code> tag. The selection uses 220 Hz.</p>
-<p>The ring modulator (<code>CRingMod</code>) is a single persistent object in the synthesizer, not one per note, and it runs every sample so its sine wave stays continuous.</p>
+<p>This creates frequencies at the sum and difference of the input and <code>ringfreq</code>, giving the sound a metallic, bell-like quality. Set <code>ringfreq</code> on the <code>&lt;score&gt;</code> tag; the selection uses 220 Hz.</p>
+<p>The synthesizer uses one persistent <code>CRingMod</code> object, which keeps its sine wave continuous across samples.</p>
 
 <h2>Classes</h2>
 <table>
   <tr><th>Class</th><th>Role</th></tr>
-  <tr><td><code>CInstrument</code></td><td>Base class for all instruments. Stores each instrument's send levels and reads them from the score.</td></tr>
+  <tr><td><code>CInstrument</code></td><td>Stores each instrument's send levels from the score.</td></tr>
   <tr><td><code>CRingMod</code></td><td>The ring modulation effect.</td></tr>
-  <tr><td><code>CSynthesizer</code></td><td>Sums instruments into the send buses, runs the effect, and mixes the final output.</td></tr>
+  <tr><td><code>CSynthesizer</code></td><td>Mixes instruments into send buses, runs the effect, and creates the output.</td></tr>
 </table>
 
 <footer>Emmanuel Koshy · CSE 471, Michigan State University · Fall 2026</footer>

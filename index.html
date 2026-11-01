@@ -42,7 +42,7 @@
 </div>
 
 <h2>Score file format</h2>
-<p>Scores are XML files with a <code>.score</code> extension. A score has one <code>&lt;score&gt;</code> root tag, which contains one or more <code>&lt;instrument&gt;</code> tags, each of which contains <code>&lt;note&gt;</code> tags.</p>
+<p>Scores use XML with a <code>.score</code> extension. The <code>&lt;score&gt;</code> root contains one or more <code>&lt;instrument&gt;</code> tags, each with its <code>&lt;note&gt;</code> tags.</p>
 
 <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;score bpm="100" beatspermeasure="4" vibratorate="6" vibratodepth="0.005"
@@ -59,8 +59,8 @@
   <tr><td><code>bpm</code></td><td>Tempo in beats per minute.</td><td>120</td></tr>
   <tr><td><code>beatspermeasure</code></td><td>Beats in each measure.</td><td>4</td></tr>
   <tr><td><code>vibratorate</code></td><td>Organ vibrato speed in Hz.</td><td>6</td></tr>
-  <tr><td><code>vibratodepth</code></td><td>Organ vibrato depth as a fraction of frequency (0.01 means ±1%). 0 turns vibrato off.</td><td>0</td></tr>
-  <tr><td><code>lesliespeed</code></td><td>Leslie speaker rotation speed in Hz (about 0.8 is slow, 6.5 is fast). 0 bypasses the Leslie.</td><td>0</td></tr>
+  <tr><td><code>vibratodepth</code></td><td>Vibrato depth as a fraction of frequency (0.01 = ±1%); 0 disables vibrato.</td><td>0</td></tr>
+  <tr><td><code>lesliespeed</code></td><td>Leslie rotation speed in Hz (about 0.8 slow, 6.5 fast); 0 disables it.</td><td>0</td></tr>
   <tr><td><code>ringfreq</code></td><td>Frequency in Hz of the ring modulator's sine wave.</td><td>300</td></tr>
 </table>
 </div>
@@ -69,27 +69,27 @@
 <div class="table-scroll">
 <table>
   <tr><th>Attribute</th><th>Meaning</th><th>Default</th></tr>
-  <tr><td><code>instrument</code></td><td>Which synthesizer plays the notes: <code>Organ</code> or <code>ToneInstrument</code> (the Step 5 sine tone).</td><td>none</td></tr>
-  <tr><td><code>main</code></td><td>Send level to the dry output (send 0).</td><td>1</td></tr>
-  <tr><td><code>ringmod</code></td><td>Send level to the ring modulator.</td><td>0</td></tr>
+  <tr><td><code>instrument</code></td><td>Instrument that plays the notes: <code>Organ</code> or <code>ToneInstrument</code> (Step 5 sine tone).</td><td>none</td></tr>
+  <tr><td><code>main</code></td><td>Level sent to the dry output (send 0).</td><td>1</td></tr>
+  <tr><td><code>ringmod</code></td><td>Level sent to the ring modulator.</td><td>0</td></tr>
 </table>
 </div>
-<p>Send levels can also be placed on an individual <code>&lt;note&gt;</code> tag. A note's own value overrides the value on its instrument tag.</p>
+<p>Set send levels on an <code>&lt;instrument&gt;</code> or override them on an individual <code>&lt;note&gt;</code>.</p>
 
 <h3>&lt;note&gt; attributes</h3>
 <div class="table-scroll">
 <table>
   <tr><th>Attribute</th><th>Meaning</th></tr>
-  <tr><td><code>measure</code></td><td>Measure the note starts in, starting at 1.</td></tr>
-  <tr><td><code>beat</code></td><td>Beat within the measure, starting at 1. Fractions are allowed (2.5 is halfway through beat 2).</td></tr>
-  <tr><td><code>duration</code></td><td>Length of the note in beats. It is converted to seconds using the score's BPM.</td></tr>
-  <tr><td><code>note</code></td><td>Pitch name such as <code>C4</code>, <code>F#3</code> or <code>Bb4</code>.</td></tr>
-  <tr><td><code>drawbars</code></td><td>Organ only. Nine digits from 0 to 8, one per drawbar, in standard Hammond order. Spaces are ignored, so <code>88 8000 000</code> works. Defaults to <code>88 8000 000</code>.</td></tr>
+  <tr><td><code>measure</code></td><td>Starting measure (1-based).</td></tr>
+  <tr><td><code>beat</code></td><td>Starting beat within the measure (1-based). Fractions are allowed; 2.5 is halfway through beat 2.</td></tr>
+  <tr><td><code>duration</code></td><td>Length in beats, converted to seconds using the score's BPM.</td></tr>
+  <tr><td><code>note</code></td><td>Pitch, such as <code>C4</code>, <code>F#3</code>, or <code>Bb4</code>.</td></tr>
+  <tr><td><code>drawbars</code></td><td>Organ only: nine digits from 0 to 8 in Hammond order. Spaces are ignored (for example, <code>88 8000 000</code>). Default: <code>88 8000 000</code>.</td></tr>
 </table>
 </div>
 
 <h2>The score file</h2>
-<p>The complete score used for the selection: <a href="organ_piece.score" download>organ_piece.score</a> (485 notes).</p>
+<p>Full selection score: <a href="organ_piece.score" download>organ_piece.score</a> (485 notes).</p>
 <details>
   <summary>Show the score</summary>
 <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
