@@ -13,7 +13,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Times New Roman", Times, serif;
   line-height: 1.6;
 }
 
@@ -27,7 +27,6 @@ nav {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  font-family: system-ui, sans-serif;
   font-size: 0.95rem;
   padding-bottom: 16px;
   border-bottom: 2px solid var(--rule);
@@ -42,7 +41,7 @@ h1 { font-size: 2.6rem; line-height: 1.15; margin: 0 0 8px; }
 h2 { font-size: 1.4rem; margin: 40px 0 12px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
 h3 { font-size: 1.1rem; margin: 24px 0 8px; }
 
-.sub { color: var(--muted); font-family: system-ui, sans-serif; margin: 0 0 24px; }
+.sub { color: var(--muted); margin: 0 0 24px; }
 
 a { color: var(--ink); text-decoration: underline; }
 
@@ -71,14 +70,12 @@ th, td {
 }
 
 th {
-  font-family: system-ui, sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   border-bottom: 1px solid var(--rule);
 }
 
 code, pre {
-  font-family: Consolas, "Courier New", monospace;
   font-size: 0.88rem;
   background: var(--code-bg);
 }
@@ -94,7 +91,7 @@ pre {
 
 details pre { max-height: 480px; overflow: auto; }
 
-summary { cursor: pointer; font-family: system-ui, sans-serif; text-decoration: underline; }
+summary { cursor: pointer; text-decoration: underline; }
 
 .yes { font-weight: 700; }
 
@@ -105,6 +102,5 @@ footer {
   padding-top: 16px;
   border-top: 1px solid var(--rule);
   color: var(--muted);
-  font-family: system-ui, sans-serif;
   font-size: 0.85rem;
 }
