@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organ Component</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="organ.html" aria-current="page">Organ component</a>
+  <a href="effects.html">Effects component</a>
+</nav>
+
+<h1>Organ Synthesizer</h1>
+<p class="sub">Owner: Emmanuel Koshy</p>
+
+<p>This component simulates a Hammond B3 tonewheel organ. Each note is built from up to nine sine waves mixed by drawbar settings, shaped by a short envelope, and then shared vibrato and a Leslie speaker are applied to all organ notes together.</p>
+
+<div class="card">
+  <h3>Organ demo</h3>
+  <p>Organ only, no effects. In order: one tonewheel, more drawbars added, a full-drawbar chord, a different registration, fast short notes (envelope), and a held chord (vibrato and Leslie).</p>
+  <audio controls preload="none" src="organ_demo.mp3"></audio>
+  <p><a href="organ_demo.score" download>organ_demo.score</a></p>
+</div>
+
+<h2>Grading elements supported</h2>
+<table>
+  <tr><th>Points</th><th>Element</th><th>Supported</th></tr>
+  <tr><td>10</td><td>Tonewheels</td><td class="yes">Yes</td></tr>
+  <tr><td>20</td><td>Drawbars</td><td class="yes">Yes</td></tr>
+  <tr><td>30</td><td>Envelope generation</td><td class="yes">Yes</td></tr>
+  <tr><td>40</td><td>Vibrato</td><td class="yes">Yes</td></tr>
+  <tr><td>50</td><td>Leslie speaker</td><td class="yes">Yes (amplitude modulation and stereo rotation, see below)</td></tr>
+</table>
+
+<h2>Tonewheels</h2>
+<p>A tonewheel is modeled as a sine wave generator. Each organ note owns a <code>CDrawbarWave</code> object holding nine sine generators, one per drawbar. Each generator keeps its own phase, measured in cycles, and advances it every sample by <code>frequency × multiple × sample period</code>.</p>
+
+<h2>Drawbars</h2>
+<p>The drawbar setting comes from the note's <code>drawbars</code> attribute, for example <code>88 8000 000</code>. The nine digits map to the standard Hammond drawbars and their frequency multiples:</p>
+<div class="table-scroll">
+<table>
+  <tr><th>Drawbar</th><th>16'</th><th>5⅓'</th><th>8'</th><th>4'</th><th>2⅔'</th><th>2'</th><th>1⅗'</th><th>1⅓'</th><th>1'</th></tr>
+  <tr><td>Multiple</td><td>1×</td><td>3×</td><td>2×</td><td>4×</td><td>6×</td><td>8×</td><td>10×</td><td>12×</td><td>16×</td></tr>
+</table>
+</div>
+<p>A setting of 8 is full amplitude, and each step down is −3 dB. The amplitude for a setting <em>n</em> from 1 to 8 is</p>
+<pre>amplitude = 10^(−3 × (8 − n) / 20)</pre>
+<p>so 8 gives 1.0, 7 gives 0.708 and 5 gives 0.354. A setting of 0 turns that tonewheel off. The nine sines are summed and divided by the total of the active amplitudes, so a full registration does not clip.</p>
+
+<h2>Envelope generation</h2>
+<p>Each note's output passes through an attack/release envelope (<code>CAR</code>). The gain ramps from 0 to 1 over a 10 ms attack and back to 0 over a 50 ms release at the end of the note. This matches an organ's quick start and stop and prevents clicks. The release fits inside the note's duration, so the rhythm stays exact. The note's <code>duration</code> is in beats and is converted to seconds using the score's BPM.</p>
+
+<h2>Vibrato</h2>
+<p>On a B3, vibrato changes the speed of all the tonewheels at once, so it affects every note together and changes each frequency by a percentage. To match this, one vibrato oscillator lives in the synthesizer rather than in each note. Every sample it computes</p>
+<pre>factor = 1 + vibratodepth × sin(2π × vibratorate × t)</pre>
+<p>and passes the same factor to every playing organ note, which multiplies all nine tonewheel frequencies by it. With <code>vibratodepth="0.01"</code>, a 1000 Hz tone varies by ±10 Hz and a 3000 Hz tone by ±30 Hz. Rate and depth are set on the <code>&lt;score&gt;</code> tag.</p>
+
+<h2>Leslie speaker</h2>
+<p>The Leslie speaker (<code>CLeslie</code>) is one persistent object that processes the combined output, like a real Leslie cabinet fed by the whole organ. It models a rotating horn with two effects:</p>
+<ul>
+  <li><strong>Amplitude modulation:</strong> the sound gets louder as the horn turns toward the listener and quieter as it turns away.</li>
+  <li><strong>Stereo rotation:</strong> the left and right outputs act as two microphones on opposite sides of the cabinet, half a rotation apart, so the sound sweeps between the speakers.</li>
+</ul>
+<p>Rotation speed is set with <code>lesliespeed</code> on the <code>&lt;score&gt;</code> tag: about 0.8 Hz for the slow "chorale" setting and about 6.5 Hz for the fast "tremolo" setting. A Doppler pitch shift using a modulated delay line was also tried, but it added audible artifacts with this organ's bright harmonics, so it was left out. The amplitude modulation and stereo rotation produce the swirling Leslie sound on their own. The model uses one rotor, not the real cabinet's separate horn and bass drum. The Leslie is clearest on headphones.</p>
+
+<h2>Classes</h2>
+<table>
+  <tr><th>Class</th><th>Role</th></tr>
+  <tr><td><code>COrgan</code></td><td>The instrument. One is created for each organ note. It reads the note's pitch, duration and drawbars and produces the note's audio.</td></tr>
+  <tr><td><code>CDrawbarWave</code></td><td>The nine tonewheels and drawbar mixing for one note. It also applies the vibrato factor.</td></tr>
+  <tr><td><code>CAR</code></td><td>Attack/release envelope and note duration.</td></tr>
+  <tr><td><code>CLeslie</code></td><td>Leslie speaker simulation, shared by all organ notes.</td></tr>
+  <tr><td><code>CSynthesizer</code></td><td>Holds the shared vibrato oscillator and the Leslie, and reads their settings from the score.</td></tr>
+</table>
+
+<footer>Emmanuel Koshy · CSE 471, Michigan State University · Fall 2026</footer>
+
+</div>
+</body>
+</html>

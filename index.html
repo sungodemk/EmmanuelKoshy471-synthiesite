@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tonewheel Drift</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <a href="index.html" aria-current="page">Home</a>
+  <a href="organ.html">Organ component</a>
+  <a href="effects.html">Effects component</a>
+</nav>
+
+<h1>Tonewheel Drift</h1>
+<p class="sub">CSE 471 Project 1: A Multi-Component Music Synthesizer · Fall 2026</p>
+
+<h2>Group members</h2>
+<table>
+  <tr><th>Member</th><th>Component</th></tr>
+  <tr><td>Emmanuel Koshy</td><td><a href="organ.html">Organ synthesizer</a> and <a href="effects.html">effects component</a></td></tr>
+</table>
+<p>This is a one-person team. Per the project rules, a solo team implements one synthesis component and the basic effects component.</p>
+
+<h2>Audio</h2>
+
+<div class="card">
+  <h3>Tonewheel Drift (full selection, about 89 seconds)</h3>
+  <p>A piece in A minor over an Am–F–C–G progression at 100 BPM. It has an intro, a groove section, a ring-modulated middle section, a full-drawbar return, a quiet outro, and a short organ solo to finish.</p>
+  <audio controls preload="none" src="organ_piece.mp3"></audio>
+</div>
+
+<div class="card">
+  <h3>Organ demo (about 14 seconds)</h3>
+  <p>Organ only, no effects. Demonstrates a single tonewheel, drawbar registrations, the envelope, vibrato and the Leslie speaker.</p>
+  <audio controls preload="none" src="organ_demo.mp3"></audio>
+</div>
+
+<div class="card">
+  <h3>Effects demo (about 14 seconds)</h3>
+  <p>The organ played through the effects component. The same phrase is heard dry, then dry plus ring modulation, then ring modulation only.</p>
+  <audio controls preload="none" src="effects_demo.mp3"></audio>
+</div>
+
+<h2>Score file format</h2>
+<p>Scores are XML files with a <code>.score</code> extension. The format extends the one from Step 5. A score has one <code>&lt;score&gt;</code> root tag, which contains one or more <code>&lt;instrument&gt;</code> tags, each of which contains <code>&lt;note&gt;</code> tags.</p>
+
+<pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;score bpm="100" beatspermeasure="4" vibratorate="6" vibratodepth="0.005"
+       lesliespeed="0.8" ringfreq="220"&gt;
+   &lt;instrument instrument="Organ" main="0.4" ringmod="0.3"&gt;
+      &lt;note measure="1" beat="1" duration="2" note="C4" drawbars="88 8000 000"/&gt;
+   &lt;/instrument&gt;
+&lt;/score&gt;</pre>
+
+<h3>&lt;score&gt; attributes (global settings)</h3>
+<div class="table-scroll">
+<table>
+  <tr><th>Attribute</th><th>Meaning</th><th>Default</th></tr>
+  <tr><td><code>bpm</code></td><td>Tempo in beats per minute.</td><td>120</td></tr>
+  <tr><td><code>beatspermeasure</code></td><td>Beats in each measure.</td><td>4</td></tr>
+  <tr><td><code>vibratorate</code></td><td>Organ vibrato speed in Hz.</td><td>6</td></tr>
+  <tr><td><code>vibratodepth</code></td><td>Organ vibrato depth as a fraction of frequency (0.01 means ±1%). 0 turns vibrato off.</td><td>0</td></tr>
+  <tr><td><code>lesliespeed</code></td><td>Leslie speaker rotation speed in Hz (about 0.8 is slow, 6.5 is fast). 0 bypasses the Leslie.</td><td>0</td></tr>
+  <tr><td><code>ringfreq</code></td><td>Frequency in Hz of the ring modulator's sine wave.</td><td>300</td></tr>
+</table>
+</div>
+
+<h3>&lt;instrument&gt; attributes</h3>
+<div class="table-scroll">
+<table>
+  <tr><th>Attribute</th><th>Meaning</th><th>Default</th></tr>
+  <tr><td><code>instrument</code></td><td>Which synthesizer plays the notes: <code>Organ</code> or <code>ToneInstrument</code> (the Step 5 sine tone).</td><td>none</td></tr>
+  <tr><td><code>main</code></td><td>Send level to the dry output (send 0).</td><td>1</td></tr>
+  <tr><td><code>ringmod</code></td><td>Send level to the ring modulator.</td><td>0</td></tr>
+</table>
+</div>
+<p>Send levels can also be placed on an individual <code>&lt;note&gt;</code> tag. A note's own value overrides the value on its instrument tag.</p>
+
+<h3>&lt;note&gt; attributes</h3>
+<div class="table-scroll">
+<table>
+  <tr><th>Attribute</th><th>Meaning</th></tr>
+  <tr><td><code>measure</code></td><td>Measure the note starts in, starting at 1.</td></tr>
+  <tr><td><code>beat</code></td><td>Beat within the measure, starting at 1. Fractions are allowed (2.5 is halfway through beat 2).</td></tr>
+  <tr><td><code>duration</code></td><td>Length of the note in beats. It is converted to seconds using the score's BPM.</td></tr>
+  <tr><td><code>note</code></td><td>Pitch name such as <code>C4</code>, <code>F#3</code> or <code>Bb4</code>.</td></tr>
+  <tr><td><code>drawbars</code></td><td>Organ only. Nine digits from 0 to 8, one per drawbar, in standard Hammond order. Spaces are ignored, so <code>88 8000 000</code> works. Defaults to <code>88 8000 000</code>.</td></tr>
+</table>
+</div>
+
+<h2>The score file</h2>
+<p>The complete score used for the selection: <a href="organ_piece.score" download>organ_piece.score</a> (485 notes). The demo scores are <a href="organ_demo.score" download>organ_demo.score</a> and <a href="effects_demo.score" download>effects_demo.score</a>.</p>
+<details>
+  <summary>Show organ_piece.score</summary>
+<pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;score bpm=&quot;100&quot; beatspermeasure=&quot;4&quot; vibratorate=&quot;6&quot; vibratodepth=&quot;0.005&quot; lesliespeed=&quot;0.8&quot; ringfreq=&quot;220&quot;&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.35&quot;&gt;
+      &lt;note measure=&quot;1&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;1&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;1&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;2&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;2&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;2&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;F4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;3&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;3&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;3&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;G3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;4&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;B3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;4&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;D4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;4&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;G3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2.5&quot; duration=&quot;1.4&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;B3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;D4&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;68 8600 000&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;A3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;F4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;C4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;1&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;B3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;D4&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;3&quot; duration=&quot;1.9&quot; note=&quot;G3&quot; drawbars=&quot;88 8888 888&quot;/&gt;
+      &lt;note measure=&quot;29&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;29&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;29&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;30&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;30&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;30&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;F4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;31&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;31&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;31&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;G3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;32&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;B3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;32&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;D4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;32&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;G3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;33&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;33&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;33&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+   &lt;/instrument&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.55&quot;&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;D3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;D3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;F3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C4&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;D3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;F2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;D3&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+      &lt;note measure=&quot;33&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A2&quot; drawbars=&quot;80 8000 000&quot;/&gt;
+   &lt;/instrument&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.5&quot;&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;5&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;6&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;7&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;8&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;G5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;9&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;10&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;11&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;12&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;G5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;21&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;22&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;23&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;D5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;24&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;25&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;26&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;1&quot; duration=&quot;0.9&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;3&quot; duration=&quot;1.35&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;27&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;D6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;28&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;G6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;29&quot; beat=&quot;1&quot; duration=&quot;3.6&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;30&quot; beat=&quot;1&quot; duration=&quot;3.6&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;31&quot; beat=&quot;1&quot; duration=&quot;3.6&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;32&quot; beat=&quot;1&quot; duration=&quot;3.6&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;33&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+   &lt;/instrument&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.4&quot; ringmod=&quot;0.3&quot;&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;13&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;14&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;15&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;16&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;17&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;E5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;2&quot; duration=&quot;0.9&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;18&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;E4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;3&quot; duration=&quot;0.9&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;19&quot; beat=&quot;4&quot; duration=&quot;0.9&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;1&quot; duration=&quot;1.35&quot; note=&quot;G4&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+      &lt;note measure=&quot;20&quot; beat=&quot;3&quot; duration=&quot;1.8&quot; note=&quot;D5&quot; drawbars=&quot;88 8000 008&quot;/&gt;
+   &lt;/instrument&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.5&quot;&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;F5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;A5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;F5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;1&quot; duration=&quot;0.45&quot; note=&quot;C5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;1.5&quot; duration=&quot;0.45&quot; note=&quot;E5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;2&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;2.5&quot; duration=&quot;0.45&quot; note=&quot;C6&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;3&quot; duration=&quot;0.45&quot; note=&quot;B5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;3.5&quot; duration=&quot;0.45&quot; note=&quot;G5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;4&quot; duration=&quot;0.45&quot; note=&quot;D5&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;4.5&quot; duration=&quot;0.45&quot; note=&quot;B4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+      &lt;note measure=&quot;37&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A4&quot; drawbars=&quot;88 8800 888&quot;/&gt;
+   &lt;/instrument&gt;
+   &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.3&quot;&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;34&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;35&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;F4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;G3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;36&quot; beat=&quot;1&quot; duration=&quot;3.9&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;37&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A3&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;37&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;C4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;37&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;E4&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+      &lt;note measure=&quot;37&quot; beat=&quot;1&quot; duration=&quot;4&quot; note=&quot;A2&quot; drawbars=&quot;00 8600 000&quot;/&gt;
+   &lt;/instrument&gt;
+&lt;/score&gt;</pre>
+</details>
+
+<h2>How the program works</h2>
+<p>The program is built on the Step 5 Synthie structure. <code>CSynthesizer</code> loads the score, sorts the notes by measure and beat, and generates audio one stereo frame at a time. On each frame it:</p>
+<ol>
+  <li>Starts any notes whose measure and beat have arrived, creating one instrument object per note.</li>
+  <li>Computes the shared vibrato value and passes it to every playing organ note.</li>
+  <li>Asks each playing instrument for one frame and adds it to each effects send bus according to that instrument's send levels. Finished instruments are removed.</li>
+  <li>Mixes the dry bus with the ring modulator's output, then runs the result through the Leslie speaker.</li>
+  <li>Advances the time, beat and measure.</li>
+</ol>
+<p>The output is streamed: each frame is written as soon as it is made, and the full piece is never held in memory.</p>
+
+<h2>Use of AI</h2>
+<p>An AI assistant (Claude) was used to help write the synthesizer code and to compose the music. The score was produced by a Python script, written with AI help, that generates the chord progression, bass line and melody as XML notes.</p>
+
+<footer>Emmanuel Koshy · CSE 471, Michigan State University · Fall 2026</footer>
+
+</div>
+</body>
+</html>

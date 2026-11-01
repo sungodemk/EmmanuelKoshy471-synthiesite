@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<score bpm="100" beatspermeasure="4" vibratodepth="0" lesliespeed="0" ringfreq="220">
+   <instrument instrument="Organ" main="0.8">
+      <note measure="1" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="1" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="1" beat="1" duration="3.9" note="E4" drawbars="88 8000 000"/>
+      <note measure="1" beat="1" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="1" beat="2" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="1" beat="3" duration="1.9" note="E5" drawbars="88 8000 008"/>
+      <note measure="2" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="2" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="2" beat="1" duration="3.9" note="F4" drawbars="88 8000 000"/>
+      <note measure="2" beat="1" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="2" beat="2" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="2" beat="3" duration="1.9" note="F5" drawbars="88 8000 008"/>
+   </instrument>
+   <instrument instrument="Organ" main="0.5" ringmod="0.4">
+      <note measure="3" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="3" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="3" beat="1" duration="3.9" note="E4" drawbars="88 8000 000"/>
+      <note measure="3" beat="1" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="3" beat="2" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="3" beat="3" duration="1.9" note="E5" drawbars="88 8000 008"/>
+      <note measure="4" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="4" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="4" beat="1" duration="3.9" note="F4" drawbars="88 8000 000"/>
+      <note measure="4" beat="1" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="4" beat="2" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="4" beat="3" duration="1.9" note="F5" drawbars="88 8000 008"/>
+   </instrument>
+   <instrument instrument="Organ" main="0" ringmod="0.8">
+      <note measure="5" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="5" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="5" beat="1" duration="3.9" note="E4" drawbars="88 8000 000"/>
+      <note measure="5" beat="1" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="5" beat="2" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="5" beat="3" duration="1.9" note="E5" drawbars="88 8000 008"/>
+      <note measure="6" beat="1" duration="3.9" note="A3" drawbars="88 8000 000"/>
+      <note measure="6" beat="1" duration="3.9" note="C4" drawbars="88 8000 000"/>
+      <note measure="6" beat="1" duration="3.9" note="F4" drawbars="88 8000 000"/>
+      <note measure="6" beat="1" duration="0.9" note="C5" drawbars="88 8000 008"/>
+      <note measure="6" beat="2" duration="0.9" note="A4" drawbars="88 8000 008"/>
+      <note measure="6" beat="3" duration="1.9" note="F5" drawbars="88 8000 008"/>
+   </instrument>
+</score>
