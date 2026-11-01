@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tonewheel Drift</title>
+<title>Sheep</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
   <a href="effects.html">Effects component</a>
 </nav>
 
-<h1>Tonewheel Drift</h1>
+<h1>Sheep</h1>
 <p class="sub">CSE 471 Project 1: A Multi-Component Music Synthesizer · Fall 2026</p>
 
 <h2>Group members</h2>
@@ -23,30 +23,26 @@
   <tr><th>Member</th><th>Component</th></tr>
   <tr><td>Emmanuel Koshy</td><td><a href="organ.html">Organ synthesizer</a> and <a href="effects.html">effects component</a></td></tr>
 </table>
-<p>This is a one-person team. Per the project rules, a solo team implements one synthesis component and the basic effects component.</p>
 
 <h2>Audio</h2>
 
 <div class="card">
-  <h3>Tonewheel Drift (full selection, about 89 seconds)</h3>
-  <p>A piece in A minor over an Am–F–C–G progression at 100 BPM. It has an intro, a groove section, a ring-modulated middle section, a full-drawbar return, a quiet outro, and a short organ solo to finish.</p>
-  <audio controls preload="none" src="organ_piece.mp3"></audio>
+  <h3>Sheep (full selection)</h3>
+  <audio controls preload="metadata" src="sheep.mp3"></audio>
 </div>
 
 <div class="card">
-  <h3>Organ demo (about 14 seconds)</h3>
-  <p>Organ only, no effects. Demonstrates a single tonewheel, drawbar registrations, the envelope, vibrato and the Leslie speaker.</p>
-  <audio controls preload="none" src="organ_demo.mp3"></audio>
+  <h3>Organ demo</h3>
+  <audio controls preload="metadata" src="organ_demo.mp3"></audio>
 </div>
 
 <div class="card">
-  <h3>Effects demo (about 14 seconds)</h3>
-  <p>The organ played through the effects component. The same phrase is heard dry, then dry plus ring modulation, then ring modulation only.</p>
-  <audio controls preload="none" src="effects_demo.mp3"></audio>
+  <h3>Effects demo</h3>
+  <audio controls preload="metadata" src="effects_demo.mp3"></audio>
 </div>
 
 <h2>Score file format</h2>
-<p>Scores are XML files with a <code>.score</code> extension. The format extends the one from Step 5. A score has one <code>&lt;score&gt;</code> root tag, which contains one or more <code>&lt;instrument&gt;</code> tags, each of which contains <code>&lt;note&gt;</code> tags.</p>
+<p>Scores are XML files with a <code>.score</code> extension. A score has one <code>&lt;score&gt;</code> root tag, which contains one or more <code>&lt;instrument&gt;</code> tags, each of which contains <code>&lt;note&gt;</code> tags.</p>
 
 <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;
 &lt;score bpm="100" beatspermeasure="4" vibratorate="6" vibratodepth="0.005"
@@ -93,9 +89,9 @@
 </div>
 
 <h2>The score file</h2>
-<p>The complete score used for the selection: <a href="organ_piece.score" download>organ_piece.score</a> (485 notes). The demo scores are <a href="organ_demo.score" download>organ_demo.score</a> and <a href="effects_demo.score" download>effects_demo.score</a>.</p>
+<p>The complete score used for the selection: <a href="organ_piece.score" download>organ_piece.score</a> (485 notes).</p>
 <details>
-  <summary>Show organ_piece.score</summary>
+  <summary>Show the score</summary>
 <pre>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
 &lt;score bpm=&quot;100&quot; beatspermeasure=&quot;4&quot; vibratorate=&quot;6&quot; vibratodepth=&quot;0.005&quot; lesliespeed=&quot;0.8&quot; ringfreq=&quot;220&quot;&gt;
    &lt;instrument instrument=&quot;Organ&quot; main=&quot;0.35&quot;&gt;
@@ -598,19 +594,8 @@
 &lt;/score&gt;</pre>
 </details>
 
-<h2>How the program works</h2>
-<p>The program is built on the Step 5 Synthie structure. <code>CSynthesizer</code> loads the score, sorts the notes by measure and beat, and generates audio one stereo frame at a time. On each frame it:</p>
-<ol>
-  <li>Starts any notes whose measure and beat have arrived, creating one instrument object per note.</li>
-  <li>Computes the shared vibrato value and passes it to every playing organ note.</li>
-  <li>Asks each playing instrument for one frame and adds it to each effects send bus according to that instrument's send levels. Finished instruments are removed.</li>
-  <li>Mixes the dry bus with the ring modulator's output, then runs the result through the Leslie speaker.</li>
-  <li>Advances the time, beat and measure.</li>
-</ol>
-<p>The output is streamed: each frame is written as soon as it is made, and the full piece is never held in memory.</p>
-
 <h2>Use of AI</h2>
-<p>An AI assistant (Claude) was used to help write the synthesizer code and to compose the music. The score was produced by a Python script, written with AI help, that generates the chord progression, bass line and melody as XML notes.</p>
+<p>AI was used to generate the initial note generator in Python.</p>
 
 <footer>Emmanuel Koshy · CSE 471, Michigan State University · Fall 2026</footer>
 
